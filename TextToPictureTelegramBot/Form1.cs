@@ -18,7 +18,7 @@ namespace TextToPictureTelegramBot
 
         private Bitmap GetScreenShot()
         {
-            Rectangle bounds = new(this.Bounds.X + 7, this.Bounds.Y + 30, 400, 400);
+            Rectangle bounds = new(this.Bounds.X + 20, this.Bounds.Y + 50, this.Bounds.Width - 40, this.Bounds.Height - 100);
             Bitmap bitmap = new(bounds.Width, bounds.Height);
             Graphics graphics = Graphics.FromImage(bitmap);
             graphics.CopyFromScreen(new Point(bounds.Left, bounds.Top), Point.Empty, bounds.Size);
@@ -26,8 +26,7 @@ namespace TextToPictureTelegramBot
         }
 
         private void Form1_Load(object sender, EventArgs e)
-        {
-
+        {           
             _client = new TelegramBotClient(Token);
             _client.StartReceiving();
             _client.OnMessage += OnMessageHandler;
@@ -44,6 +43,8 @@ namespace TextToPictureTelegramBot
                     labelText.Invoke((MethodInvoker)delegate
                     {
                         labelText.Text = message.Text.ToUpper();
+                        labelText.Left = (this.ClientSize.Width - labelText.Width) / 2;
+                        labelText.Top = (this.ClientSize.Height - labelText.Height) / 2;
                     });
 
                     GetScreenShot().Save(_path, ImageFormat.Jpeg);

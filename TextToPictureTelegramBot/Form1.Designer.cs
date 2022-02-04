@@ -33,6 +33,7 @@
             // 
             // labelText
             // 
+            this.labelText.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)));
             this.labelText.AutoSize = true;
             this.labelText.Font = new System.Drawing.Font("пиксели просто", 18F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
             this.labelText.Location = new System.Drawing.Point(98, 192);
