@@ -1,6 +1,6 @@
 ﻿namespace TextToPictureTelegramBot
 {
-    partial class Form1
+    partial class PictureForm
     {
         /// <summary>
         ///  Required designer variable.
@@ -29,6 +29,7 @@
         private void InitializeComponent()
         {
             this.labelText = new System.Windows.Forms.Label();
+            this.labelUser = new System.Windows.Forms.Label();
             this.SuspendLayout();
             // 
             // labelText
@@ -42,13 +43,23 @@
             this.labelText.TabIndex = 1;
             this.labelText.Text = "AHAHAAHAHA";
             // 
-            // Form1
+            // labelUser
+            // 
+            this.labelUser.AutoSize = true;
+            this.labelUser.Location = new System.Drawing.Point(207, 437);
+            this.labelUser.Name = "labelUser";
+            this.labelUser.Size = new System.Drawing.Size(34, 15);
+            this.labelUser.TabIndex = 2;
+            this.labelUser.Text = "USER";
+            // 
+            // PictureForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(484, 461);
+            this.Controls.Add(this.labelUser);
             this.Controls.Add(this.labelText);
-            this.Name = "Form1";
+            this.Name = "PictureForm";
             this.Text = "Picture";
             this.Load += new System.EventHandler(this.Form1_Load);
             this.ResumeLayout(false);
@@ -58,5 +69,6 @@
 
         #endregion
         private Label labelText;
+        private Label labelUser;
     }
 }
