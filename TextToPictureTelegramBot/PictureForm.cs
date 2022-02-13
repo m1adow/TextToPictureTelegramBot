@@ -27,6 +27,7 @@ namespace TextToPictureTelegramBot
 
         private void Form1_Load(object sender, EventArgs e)
         {
+            labelText.BringToFront();
             _client = new TelegramBotClient(Token);
             _client.StartReceiving();
             _client.OnMessage += OnMessageHandler;
@@ -45,6 +46,12 @@ namespace TextToPictureTelegramBot
                         labelText.Text = message.Text.ToUpper();
                         labelText.Left = (this.ClientSize.Width - labelText.Width) / 2;
                         labelText.Top = (this.ClientSize.Height - labelText.Height) / 2;
+                    });
+
+                    pictureBox.Invoke((MethodInvoker)delegate
+                    {
+                        pictureBox.Left = (this.ClientSize.Width - pictureBox.Width) / 2;
+                        pictureBox.Top = (this.ClientSize.Height - pictureBox.Height) / 2;
                     });
 
                     GetScreenShot().Save(_path, ImageFormat.Jpeg);
@@ -70,6 +77,13 @@ namespace TextToPictureTelegramBot
                         _client.OnMessage -= OnMessageHandler;
                         await _client.SendTextMessageAsync(message.Chat.Id, "Choose color of text: Red, Green, Blue, White, Black");
                         _client.OnMessage += OnTextColorHandler;
+                    }
+                    else if (message.Text == "/heart")
+                    {
+                        _client.OnMessage -= OnMessageHandler;
+                        await _client.SendTextMessageAsync(message.Chat.Id, "Choose color of heart: Red, Rose, White, Black\nFor delete: None");
+                        _client.OnMessage += OnHeartHandler;
+                        pictureBox.Visible = true;
                     }
                 }
             }
@@ -147,6 +161,43 @@ namespace TextToPictureTelegramBot
             catch (Exception exc) { }
 
             _client.OnMessage -= OnTextColorHandler;
+            _client.OnMessage += OnMessageHandler;
+        }
+
+        private async void OnHeartHandler(object sender, MessageEventArgs e)
+        {
+            try
+            {
+                var message = e.Message;
+
+                if (message.Text != null)
+                {
+                    switch (message.Text.ToUpper())
+                    {
+                        case "RED":
+                            pictureBox.Image = Resources.Images.redHeart;
+                            break;
+                        case "ROSE":
+                            pictureBox.Image = Resources.Images.roseHeart;
+                            break;
+                        case "WHITE":
+                            pictureBox.Image = Resources.Images.whiteHeart;
+                            break;
+                        case "BLACK":
+                            pictureBox.Image = Resources.Images.blackHeart;
+                            break;
+                        case "NONE":
+                            pictureBox.Image = null;
+                            break;
+                        default:
+                            await _client.SendTextMessageAsync(message.Chat.Id, "You can't choose this color.");
+                            break;
+                    }
+                }
+            }
+            catch (Exception exc) { }
+
+            _client.OnMessage -= OnHeartHandler;
             _client.OnMessage += OnMessageHandler;
         }
     }
