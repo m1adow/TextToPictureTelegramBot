@@ -83,7 +83,6 @@ namespace TextToPictureTelegramBot
                         _client.OnMessage -= OnMessageHandler;
                         await _client.SendTextMessageAsync(message.Chat.Id, "Choose color of heart: Red, Rose, White, Black\nFor delete: None");
                         _client.OnMessage += OnHeartHandler;
-                        pictureBox.Visible = true;
                     }
                 }
             }
