@@ -8,7 +8,7 @@ namespace TextToPictureTelegramBot
     public partial class PictureForm : Form
     {
         public string Token { get; private set; } = "1898319362:AAGbrOnEPt7coIUk_sg7txKBqGBaR4cFl28";
-        private string _path = "D://picture.jpg";
+        private string _path = $@"{Environment.CurrentDirectory}/picture.jpg";
         private TelegramBotClient? _client;
 
         public PictureForm()
