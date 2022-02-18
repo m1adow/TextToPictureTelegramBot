@@ -50,6 +50,8 @@ namespace TextToPictureTelegramBot
                         BackgroundColor = Color.White,
                         TextColor = Color.Black
                     };
+
+                    _users.Add(currentUser);
                 }
 
                 var message = e.Message;
@@ -59,7 +61,7 @@ namespace TextToPictureTelegramBot
                     if (message.Text != null && message.Text[0] != '/')
                     {
                         this.BackColor = currentUser.BackgroundColor;
-                        this.labelText.ForeColor = currentUser.TextColor;
+                        labelText.ForeColor = currentUser.TextColor;
 
                         labelText.Invoke((MethodInvoker)delegate
                         {
@@ -92,6 +94,8 @@ namespace TextToPictureTelegramBot
                                 await _client.SendTextMessageAsync(currentUser.ChatId, "Choose color of background: Red, Green, Blue, White, Black");
                                 return;
                             case "/textcolor":
+                                currentUser.State = UserState.EnterTextColor;
+                                await _client.SendTextMessageAsync(currentUser.ChatId, "Choose color of background: Red, Green, Blue, White, Black");
                                 return;
                             case "/heart":
                                 return;
@@ -105,11 +109,13 @@ namespace TextToPictureTelegramBot
                 if (currentUser.State == UserState.EnterBackgroundColor)
                 {
                     ChangeBackgroundColor(_client, currentUser, e);
+                    currentUser.State = UserState.Basic;
                 }
 
                 if(currentUser.State == UserState.EnterTextColor)
                 {
                     ChangeTextColor(_client, currentUser, e);
+                    currentUser.State = UserState.Basic;
                 }
 
                 /*if (message.Text != null && message.Text[0] != '/')
