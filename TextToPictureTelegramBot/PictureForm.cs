@@ -48,7 +48,8 @@ namespace TextToPictureTelegramBot
                         ChatId = e.Message.Chat.Id,
                         State = UserState.Basic,
                         BackgroundColor = Color.White,
-                        TextColor = Color.Black
+                        TextColor = Color.Black,
+                        HeartColor = "NONE"
                     };
 
                     _users.Add(currentUser);
@@ -62,6 +63,7 @@ namespace TextToPictureTelegramBot
                     {
                         this.BackColor = currentUser.BackgroundColor;
                         labelText.ForeColor = currentUser.TextColor;
+                        SetHeart(currentUser.HeartColor);
 
                         labelText.Invoke((MethodInvoker)delegate
                         {
@@ -98,6 +100,8 @@ namespace TextToPictureTelegramBot
                                 await _client.SendTextMessageAsync(currentUser.ChatId, "Choose color of background: Red, Green, Blue, White, Black");
                                 return;
                             case "/heart":
+                                currentUser.State = UserState.EnterHeartColor;
+                                await _client.SendTextMessageAsync(currentUser.ChatId, "Choose color of background: Red, White, Rose, Black, None");
                                 return;
                             default:
                                 await _client.SendTextMessageAsync(currentUser.ChatId, "Bot doesn't exist this command");
@@ -109,61 +113,23 @@ namespace TextToPictureTelegramBot
                 if (currentUser.State == UserState.EnterBackgroundColor)
                 {
                     ChangeBackgroundColor(_client, currentUser, e);
+                    await _client.SendTextMessageAsync(currentUser.ChatId, "Your color was changed");
                     currentUser.State = UserState.Basic;
                 }
 
-                if(currentUser.State == UserState.EnterTextColor)
+                if (currentUser.State == UserState.EnterTextColor)
                 {
                     ChangeTextColor(_client, currentUser, e);
+                    await _client.SendTextMessageAsync(currentUser.ChatId, "Your color was changed");
                     currentUser.State = UserState.Basic;
                 }
 
-                /*if (message.Text != null && message.Text[0] != '/')
+                if(currentUser.State == UserState.EnterHeartColor)
                 {
-                    labelText.Invoke((MethodInvoker)delegate
-                    {
-                        labelText.Text = message.Text.ToUpper();
-                        labelText.Left = (this.ClientSize.Width - labelText.Width) / 2;
-                        labelText.Top = (this.ClientSize.Height - labelText.Height) / 2;
-                    });
-
-                    pictureBox.Invoke((MethodInvoker)delegate
-                    {
-                        pictureBox.Left = (this.ClientSize.Width - pictureBox.Width) / 2;
-                        pictureBox.Top = (this.ClientSize.Height - pictureBox.Height) / 2;
-                    });
-
-                    GetScreenShot().Save(_path, ImageFormat.Jpeg);
-
-                    using (var stream = File.Open(_path, FileMode.Open))
-                    {
-                        InputOnlineFile file = new(stream);
-                        file.FileName = "picture.jpg";
-                        await _client.SendDocumentAsync(message.Chat.Id, file);
-                    }
-
+                    ChangeHeartColor(_client, currentUser, e);
+                    await _client.SendTextMessageAsync(currentUser.ChatId, "Your heart was changed");
+                    currentUser.State = UserState.Basic;
                 }
-                else if (message.Text != null && message.Text[0] == '/')
-                {
-                    if (message.Text == "/background")
-                    {
-                        _client.OnMessage -= OnMessageHandler;
-                        await _client.SendTextMessageAsync(message.Chat.Id, "Choose color of background: Red, Green, Blue, White, Black");
-                        _client.OnMessage += OnBackGroundHandler;
-                    }
-                    else if (message.Text == "/textcolor")
-                    {
-                        _client.OnMessage -= OnMessageHandler;
-                        await _client.SendTextMessageAsync(message.Chat.Id, "Choose color of text: Red, Green, Blue, White, Black");
-                        _client.OnMessage += OnTextColorHandler;
-                    }
-                    else if (message.Text == "/heart")
-                    {
-                        _client.OnMessage -= OnMessageHandler;
-                        await _client.SendTextMessageAsync(message.Chat.Id, "Choose color of heart: Red, Rose, White, Black\nFor delete: None");
-                        _client.OnMessage += OnHeartHandler;
-                    }
-                }*/
             }
             catch (Exception ex) { }
         }
@@ -188,7 +154,7 @@ namespace TextToPictureTelegramBot
                     user.BackgroundColor = Color.Black;
                     return;
                 default:
-                    await client.SendTextMessageAsync(user.ChatId, "You can't choose this color.");
+                    await client.SendTextMessageAsync(user.ChatId, "You can't choose this color");
                     return;
             }
         }
@@ -218,115 +184,51 @@ namespace TextToPictureTelegramBot
             }
         }
 
-        private async void OnBackGroundHandler(object sender, MessageEventArgs e)
+        private async void ChangeHeartColor(TelegramBotClient client, User user, MessageEventArgs e)
         {
-            try
+            switch (e.Message.Text.ToUpper())
             {
-                var message = e.Message;
-
-                if (message.Text != null)
-                {
-                    switch (message.Text.ToUpper())
-                    {
-                        case "RED":
-                            this.BackColor = Color.Red;
-                            break;
-                        case "GREEN":
-                            this.BackColor = Color.Green;
-                            break;
-                        case "BLUE":
-                            this.BackColor = Color.Blue;
-                            break;
-                        case "WHITE":
-                            this.BackColor = Color.White;
-                            break;
-                        case "BLACK":
-                            this.BackColor = Color.Black;
-                            break;
-                        default:
-                            await _client.SendTextMessageAsync(message.Chat.Id, "You can't choose this color.");
-                            break;
-                    }
-                }
+                case "RED":
+                    user.HeartColor = "RED";
+                    return;
+                case "ROSE":
+                    user.HeartColor = "ROSE";
+                    return;
+                case "WHITE":
+                    user.HeartColor = "WHITE";
+                    return;
+                case "BLACK":
+                    user.HeartColor = "BLACK";
+                    return;
+                case "NONE":
+                    user.HeartColor = "NONE";
+                    return;
+                default:
+                    await client.SendTextMessageAsync(user.ChatId, "You can't choose this color");
+                    return;
             }
-            catch (Exception exc) { }
-
-            _client.OnMessage -= OnBackGroundHandler;
-            _client.OnMessage += OnMessageHandler;
         }
 
-        private async void OnTextColorHandler(object sender, MessageEventArgs e)
+        private void SetHeart(string color)
         {
-            try
+            switch (color)
             {
-                var message = e.Message;
-
-                if (message.Text != null)
-                {
-                    switch (message.Text.ToUpper())
-                    {
-                        case "RED":
-                            labelText.ForeColor = Color.Red;
-                            break;
-                        case "GREEN":
-                            labelText.ForeColor = Color.Green;
-                            break;
-                        case "BLUE":
-                            labelText.ForeColor = Color.Blue;
-                            break;
-                        case "WHITE":
-                            labelText.ForeColor = Color.White;
-                            break;
-                        case "BLACK":
-                            this.BackColor = Color.Black;
-                            break;
-                        default:
-                            await _client.SendTextMessageAsync(message.Chat.Id, "You can't choose this color.");
-                            break;
-                    }
-                }
+                case "RED":
+                    pictureBox.Image = Resources.Images.redHeart;
+                    return;
+                case "ROSE":
+                    pictureBox.Image = Resources.Images.roseHeart;
+                    return;
+                case "WHITE":
+                    pictureBox.Image = Resources.Images.whiteHeart;
+                    return;
+                case "BLACK":
+                    pictureBox.Image = Resources.Images.blackHeart;
+                    return;
+                case "NONE":
+                    pictureBox.Image = null;
+                    return;
             }
-            catch (Exception exc) { }
-
-            _client.OnMessage -= OnTextColorHandler;
-            _client.OnMessage += OnMessageHandler;
-        }
-
-        private async void OnHeartHandler(object sender, MessageEventArgs e)
-        {
-            try
-            {
-                var message = e.Message;
-
-                if (message.Text != null)
-                {
-                    switch (message.Text.ToUpper())
-                    {
-                        case "RED":
-                            pictureBox.Image = Resources.Images.redHeart;
-                            break;
-                        case "ROSE":
-                            pictureBox.Image = Resources.Images.roseHeart;
-                            break;
-                        case "WHITE":
-                            pictureBox.Image = Resources.Images.whiteHeart;
-                            break;
-                        case "BLACK":
-                            pictureBox.Image = Resources.Images.blackHeart;
-                            break;
-                        case "NONE":
-                            pictureBox.Image = null;
-                            break;
-                        default:
-                            await _client.SendTextMessageAsync(message.Chat.Id, "You can't choose this color.");
-                            break;
-                    }
-                }
-            }
-            catch (Exception exc) { }
-
-            _client.OnMessage -= OnHeartHandler;
-            _client.OnMessage += OnMessageHandler;
         }
     }
 }

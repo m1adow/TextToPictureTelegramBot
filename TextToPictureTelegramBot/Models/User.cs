@@ -12,7 +12,7 @@ namespace TextToPictureTelegramBot.Models
         public long ChatId { get; set; }
         public Color BackgroundColor { get; set; }
         public Color TextColor { get; set; }
-        public Color HeartColor { get; set; }
+        public string? HeartColor { get; set; }
     }
 
     internal enum UserState
