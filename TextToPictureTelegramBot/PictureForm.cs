@@ -3,6 +3,7 @@ using System.Drawing.Imaging;
 using Telegram.Bot.Args;
 using Telegram.Bot.Types.InputFiles;
 using TextToPictureTelegramBot.Models;
+using Telegram.Bot.Types.ReplyMarkups;
 
 namespace TextToPictureTelegramBot
 {
@@ -60,14 +61,15 @@ namespace TextToPictureTelegramBot
                 if (currentUser.State == UserState.Basic)
                 {
                     if (message.Text != null && message.Text[0] != '/')
-                    {
+                    {                        
                         this.BackColor = currentUser.BackgroundColor;
-                        labelText.ForeColor = currentUser.TextColor;
+                        
                         SetHeart(currentUser.HeartColor);
 
                         labelText.Invoke((MethodInvoker)delegate
                         {
-                            labelText.Text = message.Text.ToUpper();
+                            labelText.ForeColor = currentUser.TextColor;
+                            labelText.Text = message.Text;
                             labelText.Left = (this.ClientSize.Width - labelText.Width) / 2;
                             labelText.Top = (this.ClientSize.Height - labelText.Height) / 2;
                         });
@@ -93,15 +95,15 @@ namespace TextToPictureTelegramBot
                         {
                             case "/background":
                                 currentUser.State = UserState.EnterBackgroundColor;
-                                await _client.SendTextMessageAsync(currentUser.ChatId, "Choose color of background: Red, Green, Blue, White, Black");
+                                await _client.SendTextMessageAsync(currentUser.ChatId, "Choose color of background: Red, Green, Blue, White, Black", replyMarkup: Buttons.Colors());
                                 return;
                             case "/textcolor":
                                 currentUser.State = UserState.EnterTextColor;
-                                await _client.SendTextMessageAsync(currentUser.ChatId, "Choose color of background: Red, Green, Blue, White, Black");
+                                await _client.SendTextMessageAsync(currentUser.ChatId, "Choose color of background: Red, Green, Blue, White, Black", replyMarkup: Buttons.Colors());
                                 return;
                             case "/heart":
                                 currentUser.State = UserState.EnterHeartColor;
-                                await _client.SendTextMessageAsync(currentUser.ChatId, "Choose color of background: Red, White, Rose, Black, None");
+                                await _client.SendTextMessageAsync(currentUser.ChatId, "Choose color of background: Red, White, Rose, Black, None", replyMarkup: Buttons.ColorsOfHeart());
                                 return;
                             default:
                                 await _client.SendTextMessageAsync(currentUser.ChatId, "Bot doesn't exist this command");
@@ -113,25 +115,25 @@ namespace TextToPictureTelegramBot
                 if (currentUser.State == UserState.EnterBackgroundColor)
                 {
                     ChangeBackgroundColor(_client, currentUser, e);
-                    await _client.SendTextMessageAsync(currentUser.ChatId, "Your color was changed");
+                    PrintSuccess(_client, currentUser, "Your color was changed");
                     currentUser.State = UserState.Basic;
                 }
 
                 if (currentUser.State == UserState.EnterTextColor)
                 {
                     ChangeTextColor(_client, currentUser, e);
-                    await _client.SendTextMessageAsync(currentUser.ChatId, "Your color was changed");
+                    PrintSuccess(_client, currentUser, "Your color was changed");
                     currentUser.State = UserState.Basic;
                 }
 
                 if(currentUser.State == UserState.EnterHeartColor)
                 {
                     ChangeHeartColor(_client, currentUser, e);
-                    await _client.SendTextMessageAsync(currentUser.ChatId, "Your heart was changed");
+                    PrintSuccess(_client, currentUser, "Your heart was changed");
                     currentUser.State = UserState.Basic;
                 }
             }
-            catch (Exception ex) { }
+            catch (Exception ex) { MessageBox.Show(ex.Message); }
         }
 
         private async void ChangeBackgroundColor(TelegramBotClient client, User user, MessageEventArgs e)
@@ -229,6 +231,11 @@ namespace TextToPictureTelegramBot
                     pictureBox.Image = null;
                     return;
             }
+        }
+
+        private async void PrintSuccess(TelegramBotClient? client, User? user, string message)
+        {
+            await client.SendTextMessageAsync(user.ChatId, message, replyMarkup: new ReplyKeyboardRemove());
         }
     }
 }
